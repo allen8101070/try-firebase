@@ -45,6 +45,7 @@ fileBtn.addEventListener("change", e => {
         },
         function complete() {
             message.textContent = "上傳成功";
+            console.log(storageReference.list())
         }
     );
 });
@@ -115,35 +116,35 @@ function dropHandler(evt) {//evt 為 DragEvent 物件
     console.log("TCL: dropHandler -> files", files)
     var fd = new FormData();
 
-    for (var i in files) {
-        if (files[i].type == 'image/jpeg' || files[i].type == "image/gif") {
+    
+    var filesArray = Object.keys(files)
+    filesArray.forEach(item => {
+        if (files[item].type == 'image/jpeg' || files[item].type == "image/gif") {
             //將圖片在頁面預覽
             var fr = new FileReader();
             fr.onload = openfile;
-            fr.readAsDataURL(files[i]);
-
-            console.log("files[i]", files[i])
-            var path = floderPath + files[i].name;
-            name = files[i].name
-            var storageReference = firebase.storage().ref(path);
-            var task = storageReference.put(files[i]);
-
-            // 監聽連動 progress 讀取條
-            task.on(
-                "state_changed",
-                function progress(snapshot) {
-                    var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    uploader.value = percentage;
-                },
-                function error(err) {
-                    message.textContent = "上傳失敗";
-                },
-                function complete() {
-                    message.textContent = "上傳成功";
-                }
-            );
+            fr.readAsDataURL(files[item]);
         }
-    }
+        var path = floderPath + files[item].name;
+        name = files[item].name
+        var storageReference = firebase.storage().ref(path);
+        var task = storageReference.put(files[item]);
+
+        // 監聽連動 progress 讀取條
+        task.on(
+            "state_changed",
+            function progress(snapshot) {
+                var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                uploader.value = percentage;
+            },
+            function error(err) {
+                message.textContent = "上傳失敗";
+            },
+            function complete() {
+                message.textContent = "上傳成功";
+            }
+        );
+    })
 }
 function openfile(evt) {
     var img = evt.target.result;
@@ -151,4 +152,4 @@ function openfile(evt) {
     imgx.style.margin = "10px";
     imgx.src = img;
     document.getElementById('imgDIV').appendChild(imgx);
-}    
+}
