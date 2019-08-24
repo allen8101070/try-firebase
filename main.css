@@ -23,3 +23,19 @@ body {
   .message {
     margin-top: 10px;
   }
+
+
+
+
+  #dropDIV{
+    text-align: center; 
+    width: 600px;
+    height: 400px;        
+    margin: auto;
+    border: dashed 2px gray;
+     
+}
+img{
+    max-height:200px; 
+    max-width:300px;
+}

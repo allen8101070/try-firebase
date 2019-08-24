@@ -82,22 +82,73 @@ downloadBtn.addEventListener("click", e => {
      * */
     fileReference.getDownloadURL().then(function (url) {
         fetch(url)
-        .then(res => res.blob())
-        .then(blob => {
-            var a = document.createElement('a');
-            var url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = name;
+            .then(res => res.blob())
+            .then(blob => {
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(blob);
+                a.href = url;
+                a.download = name;
 
-            // Firefox 需要將 JS 建立出的 element appendChild 到 DOM 上才可以 work
-            a.style.display = "none";
-            document.body.appendChild(a);
+                // Firefox 需要將 JS 建立出的 element appendChild 到 DOM 上才可以 work
+                a.style.display = "none";
+                document.body.appendChild(a);
 
-            a.click();
+                a.click();
 
-            // 釋放多餘的 DOM 與 記憶體 
-            a.remove()
-            window.URL.revokeObjectURL(url);   
-        })
+                // 釋放多餘的 DOM 與 記憶體 
+                a.remove()
+                window.URL.revokeObjectURL(url);
+            })
     })
 })
+
+
+
+
+
+function dragoverHandler(evt) {
+    evt.preventDefault();
+}
+function dropHandler(evt) {//evt 為 DragEvent 物件
+    evt.preventDefault();
+    var files = evt.dataTransfer.files;//由DataTransfer物件的files屬性取得檔案物件
+    console.log("TCL: dropHandler -> files", files)
+    var fd = new FormData();
+
+    for (var i in files) {
+        if (files[i].type == 'image/jpeg' || files[i].type == "image/gif") {
+            //將圖片在頁面預覽
+            var fr = new FileReader();
+            fr.onload = openfile;
+            fr.readAsDataURL(files[i]);
+
+            console.log("files[i]", files[i])
+            var path = floderPath + files[i].name;
+            name = files[i].name
+            var storageReference = firebase.storage().ref(path);
+            var task = storageReference.put(files[i]);
+
+            // 監聽連動 progress 讀取條
+            task.on(
+                "state_changed",
+                function progress(snapshot) {
+                    var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploader.value = percentage;
+                },
+                function error(err) {
+                    message.textContent = "上傳失敗";
+                },
+                function complete() {
+                    message.textContent = "上傳成功";
+                }
+            );
+        }
+    }
+}
+function openfile(evt) {
+    var img = evt.target.result;
+    var imgx = document.createElement('img');
+    imgx.style.margin = "10px";
+    imgx.src = img;
+    document.getElementById('imgDIV').appendChild(imgx);
+}    
