@@ -2,31 +2,35 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="./main.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Document</title>
+<link rel="stylesheet" href="./main.css">
 </head>
 
 <body>
 
+<div id="dropArea">
+    拖曳複數資料夾、檔案到此處上傳
+</div>
+<hr>
+<div id="dropDIV" ondragover="dragoverHandler(event)" ondrop="dropHandler(event)">
+        拖曳複數檔案到此處上傳
+        <div id="up_progress"></div>
+</div>
+<div id="imgDIV"></div>
 
-        <div id="dropDIV" ondragover="dragoverHandler(event)" ondrop="dropHandler(event)">
-                拖曳圖片到此處上傳
-                <div id="up_progress"></div>
-        </div>
-                <div id="imgDIV"></div>
 
-
-    <progress value="0" max="100" id="uploader" class="uploader">0%</progress>
+<progress value="0" max="100" id="uploader" class="uploader">0%</progress>
     <input type="file" value="upload" id="fileBtn" class="fileBtn"></br>
-    <button id="downloadBtn" class="downloadBtn">download</button></br>
-    <button id="deleteBtn" class="deleteBtn">delete</button>
-    <div id="message" class="message"></div>
-    <script src="https://www.gstatic.com/firebasejs/6.4.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/6.4.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/6.4.0/firebase-storage.js"></script>
-    <script src="./main.js"></script>
+<button id="downloadBtn" class="downloadBtn">download</button></br>
+<button id="deleteBtn" class="deleteBtn">delete</button>
+<div id="message" class="message"></div>
+<script src="https://www.gstatic.com/firebasejs/6.4.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.4.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.4.0/firebase-storage.js"></script>
+<script src="./main.js"></script>
 </body>
+
 </html>

@@ -11,9 +11,9 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var db = firebase.database()
-
-
-
+db.ref().on("value",snapshot => {
+    console.log(snapshot.val()) // 用 snapshot.val() 取出該目錄結構的值
+})
 var uploader = document.getElementById("uploader");
 var fileBtn = document.getElementById("fileBtn");
 var deleteBtn = document.getElementById("deleteBtn");
@@ -29,9 +29,11 @@ fileBtn.addEventListener("change", e => {
     var path = floderPath + file.name;
     name = file.name;
     var storageReference = firebase.storage().ref(path);
+    console.log("TCL: path", path)
 
     // .put() 方法把東西丟到雲端裡
     var task = storageReference.put(file);
+    console.log("TCL: file", file)
 
     // 監聽連動 progress 讀取條
     task.on(
@@ -113,7 +115,10 @@ function dragoverHandler(evt) {
 function dropHandler(evt) {//evt 為 DragEvent 物件
     evt.preventDefault();
     var files = evt.dataTransfer.files;//由DataTransfer物件的files屬性取得檔案物件
-    console.log("TCL: dropHandler -> files", files)
+    var floder = evt.dataTransfer.items;
+    console.log("TCL: dropHandler -> files", files[0])
+    console.log("TCL: dropHandler -> floder", floder)
+    console.log(evt)
     var fd = new FormData();
 
     
@@ -153,3 +158,57 @@ function openfile(evt) {
     imgx.src = img;
     document.getElementById('imgDIV').appendChild(imgx);
 }
+
+
+
+var dropArea = document.getElementById("dropArea");
+console.log("TCL: dropArea", dropArea)
+
+// 遞迴檢查是檔案還是資料夾
+function traverseFileTree(item, path = "") {
+    if (item.isFile) {
+      // Get file
+      item.file(function(file) {
+        
+        console.log("---TCL: traverseFileTree -> path---", path)
+        console.log("---TCL: traverseFileTree -> file.name---", file.name)
+        
+        var storageReference = firebase.storage().ref(path + file.name);
+        // .put() 方法把東西丟到雲端裡
+        var task = storageReference.put(file);
+        console.log("path",path)
+        db.ref("storageRoot/" + path).push({
+            fileName: file.name,
+            filePath: "storageRoot/" + path
+        })
+      });
+    } else if (item.isDirectory) {
+      // Get folder contents
+      var dirReader = item.createReader();
+      dirReader.readEntries(function(entries) {
+        for (var i=0; i<entries.length; i++) {
+          traverseFileTree(entries[i], path + item.name + "/");
+        }
+      });
+    }
+  }
+  
+  dropArea.addEventListener("drop", function(event) {
+      console.log(event)
+    event.preventDefault();
+  
+    var items = event.dataTransfer.items;
+    console.log("TCL: items", items)
+    for (var i=0; i<items.length; i++) {
+      // webkitGetAsEntry is where the magic happens
+      var item = items[i].webkitGetAsEntry();
+      if (item) {
+        traverseFileTree(item);
+      }
+    }
+  }, false);
+
+  dropArea.addEventListener("dragover", function(event) {
+  event.preventDefault();
+
+}, false);
